@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>قائمة الشات عبر الإنترنت</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .chat-container {
+            background-color: #fff;
+            width: 300px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        .chat-header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px;
+            text-align: center;
+        }
+        .chat-messages {
+            padding: 15px;
+            height: 200px;
+            overflow-y: auto;
+            background-color: #f9f9f9;
+        }
+        .message {
+            margin: 10px 0;
+            padding: 10px;
+            background-color: #e1e1e1;
+            border-radius: 5px;
+            max-width: 80%;
+        }
+        .message.user {
+            background-color: #4CAF50;
+            color: white;
+            margin-left: auto;
+        }
+        .message.bot {
+            background-color: #f1f1f1;
+            color: black;
+        }
+        .chat-input {
+            display: flex;
+            border-top: 1px solid #ddd;
+        }
+        .chat-input input {
+            width: 80%;
+            padding: 10px;
+            border: none;
+            border-radius: 5px 0 0 5px;
+            font-size: 14px;
+        }
+        .chat-input button {
+            width: 20%;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 0 5px 5px 0;
+            cursor: pointer;
+        }
+        .chat-input button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+
+<div class="chat-container">
+    <div class="chat-header">قائمة الشات</div>
+    <div class="chat-messages" id="chat-messages"></div>
+    <div class="chat-input">
+        <input type="text" id="user-input" placeholder="اكتب رسالة...">
+        <button onclick="sendMessage()">إرسال</button>
+    </div>
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+    const socket = io(); // الاتصال بالسيرفر
+
+    // إرسال الرسالة من المستخدم إلى السيرفر
+    function sendMessage() {
+        const userInput = document.getElementById("user-input").value;
+        if (userInput.trim() === "") return;
+
+        // إرسال الرسالة للسيرفر
+        socket.emit("chat message", userInput);
+
+        // إضافة الرسالة للمحادثة في المتصفح
+        const userMessage = document.createElement("div");
+        userMessage.classList.add("message", "user");
+        userMessage.textContent = userInput;
+        document.getElementById("chat-messages").appendChild(userMessage);
+
+        // مسح النص المدخل
+        document.getElementById("user-input").value = "";
+    }
+
+    // استلام الرسائل من السيرفر وعرضها
+    socket.on("chat message", (msg) => {
+        const botMessage = document.createElement("div");
+        botMessage.classList.add("message", "bot");
+        botMessage.textContent = msg;
+        document.getElementById("chat-messages").appendChild(botMessage);
+    });
+</script>
+
+</body>
+</html>
